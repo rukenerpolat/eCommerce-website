@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini E-Ticaret</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+  <style>
+    /* Genel */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+    :root {
+      --color-primary: #000;
+      --color-secondary: #fff;
+      --color-one: #ddd;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Montserrat", sans-serif;
+      background: var(--color-secondary);
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 40px;
+      font-size: 2.5em;
+      letter-spacing: 2px;
+    }
+
+    /* Arama Kutusu */
+    .search-box {
+      max-width: 300px;
+      margin: 0 auto 30px;
+      text-align: center;
+    }
+
+    .search-box input {
+      padding: 8px;
+      width: 150px;
+      border: 1px solid var(--color-one);
+      border-radius: 4px;
+    }
+
+    .search-box button {
+      padding: 8px 12px;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-left: 6px;
+      transition: background 0.3s;
+    }
+
+    .search-box button:hover {
+      background: #333;
+    }
+
+    /* Slider */
+    .product-slider {
+      max-width: 900px;
+      margin: 0 auto 60px;
+    }
+
+    .product-slider .slide-item {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .product-slider .slide-item img {
+      max-width: 100%;
+      height: 180px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .product-slider .slide-item h4 {
+      font-size: 1rem;
+      margin-bottom: 6px;
+      color: var(--color-primary);
+    }
+
+    .product-slider .slide-item p {
+      font-weight: bold;
+      color: #444;
+    }
+
+    /* Ürün Listesi */
+    #productList {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto 60px;
+    }
+
+    .product-card {
+      width: 220px;
+      border: 1px solid var(--color-one);
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, .09);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s;
+      background: var(--color-secondary);
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .product-image {
+      padding: 20px;
+      width: 100%;
+      height: 220px;
+      object-fit: contain;
+    }
+
+    .product-card h4 {
+      text-align: center;
+      font-size: 1rem;
+      color: var(--color-primary);
+      margin: 5px 10px;
+      flex-grow: 1;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px;
+    }
+
+    .price {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .rating {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .product-card .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 5px;
+      margin: 10px;
+    }
+
+    .product-card button {
+      flex: 1;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: none;
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      white-space: nowrap;
+    }
+
+    .product-card button:hover {
+      background: #333;
+      transform: translateY(-3px);
+    }
+
+    /* Sepet */
+    #cart {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 280px;
+      background: var(--color-secondary);
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+      padding: 20px;
+      font-size: 0.9rem;
+      z-index: 2000;
+    }
+
+    #cart h3 {
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    #cartItems {
+      max-height: 320px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 0.85rem;
+      gap: 5px;
+    }
+
+    .cart-item p {
+      flex-grow: 1;
+      margin-right: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .qty-buttons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 10px;
+    }
+
+    .qty-buttons button {
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: none;
+      padding: 2px 8px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-weight: bold;
+      transition: background 0.3s;
+      user-select: none;
+    }
+
+    .qty-buttons button:hover {
+      background: #333;
+    }
+
+    #cartTotal {
+      margin-bottom: 15px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    #checkout,
+    #clearCart {
+      width: 100%;
+      padding: 10px;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      border: none;
+      margin: 5px 0;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    #checkout:hover,
+    #clearCart:hover {
+      background: #333;
+    }
+
+    /* Modal */
+    #productModal {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, .7);
+      overflow-y: auto;
+    }
+
+    .modal-content {
+      background: #fff;
+      margin: 5% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 420px;
+      border-radius: 12px;
+      position: relative;
+      text-align: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+      line-height: 1.5;
+    }
+
+    .modal-content img {
+      max-width: 120px;
+      height: auto;
+      margin-bottom: 15px;
+      object-fit: contain;
+    }
+
+    .modal-content h2 {
+      font-size: 1.2rem;
+      margin: 10px 0;
+    }
+
+    .modal-content p {
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    #closeModal {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 28px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #555;
+      user-select: none;
+      transition: color 0.3s;
+    }
+
+    #closeModal:hover {
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Store Page</h1>
+
+  <!-- Arama Kutusu -->
+  <div class="search-box">
+    <input type="number" id="productIdInput" placeholder="Ürün ID girin (1-20)">
+    <button id="searchProduct">Ara</button>
+  </div>
+
+  <!-- Arama Sonucu -->
+  <div id="searchResult"></div>
+
+  <!-- Slider -->
+  <div class="product-slider"></div>
+
+  <!-- Ürün Listesi -->
+  <div id="productList"></div>
+
+  <!-- Sepet -->
+  <div id="cart">
+    <h3>Sepetim <span id="cartCount">0</span></h3>
+    <div id="cartItems"></div>
+    <p id="cartTotal"></p>
+    <button id="checkout">Siparişi Tamamla</button>
+    <button id="clearCart">Sepeti Temizle</button>
+  </div>
+
+  <!-- Modal -->
+  <div id="productModal">
+    <div class="modal-content">
+      <span id="closeModal">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Slick Slider JS -->
+  <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+  <script>
+  $(document).ready(function() {
+    let cart = [];
+
+    // Slider Ürünleri (5 ürün)
+    $.get("https://fakestoreapi.com/products?limit=5", function(products) {
+      $.each(products, function(i, product) {
+        $('.product-slider').append(`
+          <div class="slide-item">
+            <img src="${product.image}" alt="${product.title}">
+            <h4>${product.title}</h4>
+            <p>₺${product.price.toFixed(2)}</p>
+          </div>
+        `);
+      });
+
+      $('.product-slider').slick({
+        slidesToShow: 3,
+        autoplay: true,
+        autoplaySpeed: 2000,
+        arrows: false,
+        dots: false,
+        responsive: [
+          { breakpoint: 768, settings: { slidesToShow: 1 } },
+          { breakpoint: 1024, settings: { slidesToShow: 2 } }
+        ]
+      });
+    });
+
+    $.get("https://fakestoreapi.com/products", function(products) {
+      $.each(products, function(i, product) {
+        let card = $(`
+          <div class="product-card" data-id="${product.id}">
+            <img class="product-image" src="${product.image}" alt="${product.title}">
+            <h4>${product.title}</h4>
+            <div class="info-row">
+              <span class="price">₺${product.price.toFixed(2)}</span>
+              <span class="rating">${"⭐".repeat(Math.round(product.rating.rate))}</span>
+            </div>
+            <div class="buttons">
+              <button class="addToCartBtn">Sepete Ekle</button>
+              <button class="showDetailBtn">Detay Göster</button>
+            </div>
+          </div>
+        `);
+        card.data({
+          title: product.title,
+          price: product.price,
+          description: product.description,
+          rating: product.rating.rate,
+          image: product.image
+        });
+        $('#productList').append(card.hide().fadeIn());
+      });
+    });
+
+    $('#searchProduct').click(function() {
+      let id = $('#productIdInput').val();
+      if (!id) return alert("Lütfen ürün ID'si girin");
+      $.get(`https://fakestoreapi.com/products/${id}`, function(product) {
+        $('#searchResult').html(`
+          <div class="product-card" style="margin: 20px auto; max-width: 400px;">
+            <img class="product-image" src="${product.image}" alt="${product.title}">
+            <h4>${product.title}</h4>
+            <p>₺${product.price.toFixed(2)}</p>
+            <p>${product.description}</p>
+          </div>
+        `).hide().slideDown();
+      }).fail(function() {
+        $('#searchResult').html(`<p style="text-align:center; margin: 20px;">Ürün bulunamadı.</p>`);
+      });
+    });
+
+    loadCart();
+
+    $('#productList').on('click', '.addToCartBtn', function() {
+      let card = $(this).closest('.product-card');
+      let id = card.data('id');
+      let title = card.data('title');
+      let price = parseFloat(card.data('price'));
+
+      let existing = cart.find(item => item.id == id);
+      if (existing) {
+        existing.quantity++;
+      } else {
+        cart.push({ id, title, price, quantity: 1 });
+      }
+      saveCart();
+      renderCart();
+    });
+
+    $('#cartItems').on('click', '.plus', function() {
+      let id = $(this).data('id');
+      let item = cart.find(i => i.id == id);
+      item.quantity++;
+      saveCart();
+      renderCart();
+    });
+
+    $('#cartItems').on('click', '.minus', function() {
+      let id = $(this).data('id');
+      let item = cart.find(i => i.id == id);
+      if (item.quantity > 1) {
+        item.quantity--;
+      } else {
+        cart = cart.filter(i => i.id != id);
+      }
+      saveCart();
+      renderCart();
+    });
+
+    $('#clearCart').click(() => {
+      cart = [];
+      saveCart();
+      renderCart();
+    });
+
+    $('#checkout').click(() => {
+      if (cart.length === 0) alert("Sepet boş!");
+      else {
+        alert("Siparişiniz alındı!");
+        cart = [];
+        saveCart();
+        renderCart();
+      }
+    });
+
+    $('#productList').on('click', '.showDetailBtn', function() {
+      let card = $(this).closest('.product-card');
+      let img = card.data('image');
+      let title = card.data('title');
+      let price = parseFloat(card.data('price')).toFixed(2);
+      let desc = card.data('description');
+      let rating = card.data('rating');
+      let stars = '⭐'.repeat(Math.round(rating));
+
+      $('#modalBody').html(`
+        <img src="${img}" alt="${title}">
+        <h2>${title}</h2>
+        <p><strong>Fiyat:</strong> ₺${price}</p>
+        <p><strong>Rating:</strong> ${stars} (${rating})</p>
+        <p>${desc}</p>
+      `);
+      $('#productModal').fadeIn();
+    });
+
+    $('#closeModal').click(() => $('#productModal').fadeOut());
+    $('#productModal').click(e => { if (e.target.id === 'productModal') $('#productModal').fadeOut(); });
+
+    function saveCart() {
+      localStorage.setItem('cartItems', JSON.stringify(cart));
+    }
+    function loadCart() {
+      cart = JSON.parse(localStorage.getItem('cartItems')) || [];
+      renderCart();
+    }
+    function renderCart() {
+      $('#cartItems').html('');
+      let total = 0, count = 0;
+      $.each(cart, function(i, item) {
+        let itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        count += item.quantity;
+
+        $('#cartItems').append(`
+          <div class="cart-item">
+            <p>${item.title}</p>
+            <div class="qty-buttons">
+              <button class="minus" data-id="${item.id}">-</button>
+              <span>${item.quantity}</span>
+              <button class="plus" data-id="${item.id}">+</button>
+            </div>
+            <span>₺${itemTotal.toFixed(2)}</span>
+          </div>
+        `);
+      });
+      $('#cartTotal').text(`Toplam: ₺${total.toFixed(2)}`);
+      $('#cartCount').text(count);
+    }
+  });
+  </script>
+</body>
+</html>
